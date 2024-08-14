@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\AMR_InterpretationEngine\Interpretation Engine\Interpretation Engine.csproj" />
+    <ProjectReference Include="..\FAO InFARM Library\FAO InFARM Library.csproj" />
   </ItemGroup>
 
 </Project>

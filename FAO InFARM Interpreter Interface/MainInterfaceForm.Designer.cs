@@ -39,11 +39,12 @@
 			Interp_InputFileTextBox = new TextBox();
 			Interp_InputFileLabel = new Label();
 			ValidationTab = new TabPage();
-			ExecuteButton = new Button();
-			Cancel_Button = new Button();
 			Validation_BrowseForInputFileButton = new Button();
 			Validation_InputFileTextBox = new TextBox();
 			Validation_InputFileLabel = new Label();
+			ExecuteButton = new Button();
+			Cancel_Button = new Button();
+			BackgroundProcessProgressBar = new ProgressBar();
 			TabContainer.SuspendLayout();
 			InterpretationTab.SuspendLayout();
 			ValidationTab.SuspendLayout();
@@ -95,6 +96,7 @@
 			Interp_BrowseOutputFileButton.TabIndex = 5;
 			Interp_BrowseOutputFileButton.Text = "Browse";
 			Interp_BrowseOutputFileButton.UseVisualStyleBackColor = true;
+			Interp_BrowseOutputFileButton.Click += Interp_BrowseOutputFileButton_Click;
 			// 
 			// Interp_OutputFileTextBox
 			// 
@@ -125,6 +127,7 @@
 			Interp_BrowseForInputFileButton.TabIndex = 2;
 			Interp_BrowseForInputFileButton.Text = "Browse";
 			Interp_BrowseForInputFileButton.UseVisualStyleBackColor = true;
+			Interp_BrowseForInputFileButton.Click += Interp_BrowseForInputFileButton_Click;
 			// 
 			// Interp_InputFileTextBox
 			// 
@@ -156,26 +159,6 @@
 			ValidationTab.Text = "Data file validation";
 			ValidationTab.UseVisualStyleBackColor = true;
 			// 
-			// ExecuteButton
-			// 
-			ExecuteButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-			ExecuteButton.Location = new Point(520, 217);
-			ExecuteButton.Name = "ExecuteButton";
-			ExecuteButton.Size = new Size(131, 23);
-			ExecuteButton.TabIndex = 1;
-			ExecuteButton.Text = "Execute";
-			ExecuteButton.UseVisualStyleBackColor = true;
-			// 
-			// Cancel_Button
-			// 
-			Cancel_Button.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-			Cancel_Button.Location = new Point(657, 217);
-			Cancel_Button.Name = "Cancel_Button";
-			Cancel_Button.Size = new Size(131, 23);
-			Cancel_Button.TabIndex = 2;
-			Cancel_Button.Text = "Cancel";
-			Cancel_Button.UseVisualStyleBackColor = true;
-			// 
 			// Validation_BrowseForInputFileButton
 			// 
 			Validation_BrowseForInputFileButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
@@ -203,11 +186,41 @@
 			Validation_InputFileLabel.TabIndex = 3;
 			Validation_InputFileLabel.Text = "Select an InFARM Model A data file";
 			// 
+			// ExecuteButton
+			// 
+			ExecuteButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+			ExecuteButton.Location = new Point(520, 217);
+			ExecuteButton.Name = "ExecuteButton";
+			ExecuteButton.Size = new Size(131, 23);
+			ExecuteButton.TabIndex = 1;
+			ExecuteButton.Text = "Execute";
+			ExecuteButton.UseVisualStyleBackColor = true;
+			ExecuteButton.Click += ExecuteButton_Click;
+			// 
+			// Cancel_Button
+			// 
+			Cancel_Button.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+			Cancel_Button.Location = new Point(657, 217);
+			Cancel_Button.Name = "Cancel_Button";
+			Cancel_Button.Size = new Size(131, 23);
+			Cancel_Button.TabIndex = 2;
+			Cancel_Button.Text = "Cancel";
+			Cancel_Button.UseVisualStyleBackColor = true;
+			// 
+			// BackgroundProcessProgressBar
+			// 
+			BackgroundProcessProgressBar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+			BackgroundProcessProgressBar.Location = new Point(12, 217);
+			BackgroundProcessProgressBar.Name = "BackgroundProcessProgressBar";
+			BackgroundProcessProgressBar.Size = new Size(164, 23);
+			BackgroundProcessProgressBar.TabIndex = 3;
+			// 
 			// MainInterfaceForm
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			ClientSize = new Size(800, 252);
+			Controls.Add(BackgroundProcessProgressBar);
 			Controls.Add(Cancel_Button);
 			Controls.Add(ExecuteButton);
 			Controls.Add(TabContainer);
@@ -239,5 +252,6 @@
 		private Button Validation_BrowseForInputFileButton;
 		private TextBox Validation_InputFileTextBox;
 		private Label Validation_InputFileLabel;
+		private ProgressBar BackgroundProcessProgressBar;
 	}
 }

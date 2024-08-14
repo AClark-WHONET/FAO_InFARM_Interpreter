@@ -7,3 +7,5 @@
 /.vs/FAO InFARM Interpreter Interface
 /FAO InFARM Interpreter Interface/bin/Debug/net8.0-windows
 /.vs/ProjectEvaluation
+/FAO InFARM Library/bin/Debug/net8.0
+/FAO InFARM Library/obj
