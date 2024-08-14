@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/FAO InFARM Interpreter Interface/.vs
+/FAO InFARM Interpreter Interface/obj
+/.vs/FAO InFARM Interpreter Interface
+/FAO InFARM Interpreter Interface/bin/Debug/net8.0-windows
+/.vs/ProjectEvaluation
