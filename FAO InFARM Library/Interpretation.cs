@@ -1,7 +1,6 @@
 ﻿using AMR_Engine;
 using System.ComponentModel;
 using Microsoft.VisualBasic.FileIO;
-using System.Runtime.InteropServices;
 
 namespace FAO_InFARM_Library
 {
@@ -11,15 +10,19 @@ namespace FAO_InFARM_Library
 		{
 			public string InputFileName { get; }
 			public string OutputFileName { get; }
+			public bool UseClinicalBreakpoints { get; }
 			public bool OverwriteExistingInterpretations { get; }
 
-			public ProcessArguments(string inputFileName_, string outputFileName_, bool overwriteExistingInterpretations_)
+			public ProcessArguments(string inputFileName_, string outputFileName_, bool useClinicalBreakpoints_, bool overwriteExistingInterpretations_)
 			{
 				InputFileName = inputFileName_;
 				OutputFileName = outputFileName_;
+				UseClinicalBreakpoints = useClinicalBreakpoints_;
 				OverwriteExistingInterpretations = overwriteExistingInterpretations_;
 			}
 		}
+
+
 
 		public static void InterpretDataFile(object? s, DoWorkEventArgs e)
 		{
@@ -42,75 +45,111 @@ namespace FAO_InFARM_Library
 			}
 
 			// Reset progress from earlier runs.
-			worker.ReportProgress(0);
-
-			// Load the input data file into memory.
-			string[]? headers = null;
-			List<Dictionary<string, string>> rowData =
-				LoadInputFile(args.InputFileName, ref headers);
+			int lastReportedProgressPercentage = 0;
+			worker.ReportProgress(lastReportedProgressPercentage);
 
 			// Configure interpretation system.
 			InterpretationConfiguration interpConfig =
 				InterpretationConfiguration.DefaultConfiguration();
 
-			// Include ECOFFs for InFARM.
-			interpConfig.PrioritizedBreakpointTypes.Add(Breakpoint.BreakpointTypes.ECOFF);
-
-			int totalRows = rowData.Count;
-			int lastReportedProgress = 0;
-			for (int x = 0; x < totalRows; x++)
+			if (!args.UseClinicalBreakpoints)
 			{
-				// Convert this InFARM row over to a structure and code set readable by the interpreter.
+				// Use ECOFFs instead of clinical breakpoints.
+				interpConfig.PrioritizedBreakpointTypes.Clear();
+				interpConfig.PrioritizedBreakpointTypes.Add(Breakpoint.BreakpointTypes.ECOFF);
+			}			
 
-				// Write the data row.
+			// Get a line count without having to read the file into memory or loop.
+			long totalLines = 
+				File.ReadLines(args.InputFileName).LongCount();
 
-				int currentProgress = Convert.ToInt32((x + 1) * 100 / totalRows);
-				if (currentProgress > lastReportedProgress)
+			Dictionary<string, int> headerLookup = new();
+
+			using TextFieldParser parser =
+				new(args.InputFileName)
 				{
-					lastReportedProgress = currentProgress;
-					worker.ReportProgress(lastReportedProgress);
+					TextFieldType = FieldType.Delimited,
+					HasFieldsEnclosedInQuotes = true
+				};
+			parser.SetDelimiters(Constants.InFARM_Delimiter);
+
+			using StreamWriter writer = 
+				new(args.OutputFileName);
+
+			while (!parser.EndOfData)
+			{
+				if (parser.LineNumber == 0)
+				{
+					string[]? headerArray = 
+						parser.ReadFields() ?? throw new IOException("Invalid InFARM data file provided.");
+
+					for (int x = 0; x < headerArray.Length; x++)
+						headerLookup.Add(headerArray[x].ToString(), x);
+
+					// Write the header to the output file.
+					writer.WriteLine(ToLine(headerArray));
+				}
+				else
+				{
+					// Process this data row.
+
+					// Read the new row of input data.
+					string[]? rowValues = parser.ReadFields();
+
+					// Convert relevant fields from this InFARM row over to a structure and code set readable by the interpreter.
+					// Relevant fields include: Organism (converted to WHONET codes), antibiotics (converted from InFARM format to WHONET).
+					// Don't include antibiotics with interpretations if overwrite mode is not indicated.
+					Dictionary<string, string> convertedInterpretationInput = new();
+
+
+
+					// Interpret this row.
+					Dictionary<string, string> results =
+						new IsolateInterpretation(convertedInterpretationInput,
+							convertedInterpretationInput.Keys.ToList(),
+							interpConfig.EnabledExpertInterpretationRules,
+							interpConfig.UserDefinedBreakpoints,
+							guidelineYear: Convert.ToInt32(interpConfig.GuidelineYear),
+							prioritizedBreakpointTypes: interpConfig.PrioritizedBreakpointTypes,
+							prioritizedSitesOfInfection: interpConfig.PrioritizedSitesOfInfection).
+							GetAllInterpretations();
+
+					// Substitute the new interpretation values (optionally overwritting as specified).
+
+					// Write the data row.
+					writer.WriteLine(ToLine(rowValues));
+				}
+
+				int currentProgressPercentage = 
+					Convert.ToInt32(parser.LineNumber * 100L / totalLines);
+
+				if (currentProgressPercentage > lastReportedProgressPercentage)
+				{
+					lastReportedProgressPercentage = currentProgressPercentage;
+					worker.ReportProgress(lastReportedProgressPercentage);
 				}
 			}
 		}
 
 		#region private
 
-		private static List<Dictionary<string, string>> LoadInputFile(string inputFileName, ref string[]? headers)
+		private static string ToLine(string[]? values)
 		{
-			List<Dictionary<string, string>> rowValueSets = 
-				new List<Dictionary<string, string>>();
+			if (values == null || values.Length == 0)
+				return string.Empty;
 
-			using TextFieldParser parser =
-				new(inputFileName)
+			return string.Join(Constants.InFARM_Delimiter,
+				values.Select(v => 
 				{
-					TextFieldType = FieldType.Delimited,
-					HasFieldsEnclosedInQuotes = true
-				};
-			parser.SetDelimiters(",");
+					v = v.Replace(Constants.DoubleQuote, Constants.TwoDoubleQuotes);
 
-			headers = [];
+					if (v.Contains(Constants.InFARM_Delimiter))
+					{
+						v = Constants.DoubleQuote + v + Constants.DoubleQuote;
+					}
 
-			while (!parser.EndOfData)
-			{
-				if (headers?.Length == 0)
-					headers = parser.ReadFields();
-
-				else
-				{
-					// Process this data row.
-					string[]? rowValues = parser.ReadFields();
-
-					// Load the data row into the dictionary used by the interpreter.
-					Dictionary<string, string> newRow = new();
-					for(int x = 0; x < rowValues?.Length; x++)
-						if (x < headers?.Length && !string.IsNullOrEmpty(headers[x]) && !string.IsNullOrWhiteSpace(rowValues[x]))
-							newRow.Add(headers[x], rowValues[x].Trim());
-
-					rowValueSets.Add(newRow);
-				}
-			}
-
-			return rowValueSets;
+					return v;
+				}));
 		}
 
 		#endregion

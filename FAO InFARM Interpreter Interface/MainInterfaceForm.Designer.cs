@@ -31,6 +31,8 @@
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainInterfaceForm));
 			TabContainer = new TabControl();
 			InterpretationTab = new TabPage();
+			Interp_ECOFFsRadioButton = new RadioButton();
+			Interp_ClinicalBreakpointsRadioButton = new RadioButton();
 			Interp_OutputFileLabel = new Label();
 			Interp_BrowseOutputFileButton = new Button();
 			Interp_OutputFileTextBox = new TextBox();
@@ -63,6 +65,8 @@
 			// 
 			// InterpretationTab
 			// 
+			InterpretationTab.Controls.Add(Interp_ECOFFsRadioButton);
+			InterpretationTab.Controls.Add(Interp_ClinicalBreakpointsRadioButton);
 			InterpretationTab.Controls.Add(Interp_OutputFileLabel);
 			InterpretationTab.Controls.Add(Interp_BrowseOutputFileButton);
 			InterpretationTab.Controls.Add(Interp_OutputFileTextBox);
@@ -77,6 +81,28 @@
 			InterpretationTab.TabIndex = 0;
 			InterpretationTab.Text = "Data file interpretation";
 			InterpretationTab.UseVisualStyleBackColor = true;
+			// 
+			// Interp_ECOFFsRadioButton
+			// 
+			Interp_ECOFFsRadioButton.AutoSize = true;
+			Interp_ECOFFsRadioButton.Location = new Point(6, 124);
+			Interp_ECOFFsRadioButton.Name = "Interp_ECOFFsRadioButton";
+			Interp_ECOFFsRadioButton.Size = new Size(87, 19);
+			Interp_ECOFFsRadioButton.TabIndex = 7;
+			Interp_ECOFFsRadioButton.Text = "Use ECOFFs";
+			Interp_ECOFFsRadioButton.UseVisualStyleBackColor = true;
+			// 
+			// Interp_ClinicalBreakpointsRadioButton
+			// 
+			Interp_ClinicalBreakpointsRadioButton.AutoSize = true;
+			Interp_ClinicalBreakpointsRadioButton.Checked = true;
+			Interp_ClinicalBreakpointsRadioButton.Location = new Point(6, 99);
+			Interp_ClinicalBreakpointsRadioButton.Name = "Interp_ClinicalBreakpointsRadioButton";
+			Interp_ClinicalBreakpointsRadioButton.Size = new Size(149, 19);
+			Interp_ClinicalBreakpointsRadioButton.TabIndex = 6;
+			Interp_ClinicalBreakpointsRadioButton.TabStop = true;
+			Interp_ClinicalBreakpointsRadioButton.Text = "Use clinical breakpoints";
+			Interp_ClinicalBreakpointsRadioButton.UseVisualStyleBackColor = true;
 			// 
 			// Interp_OutputFileLabel
 			// 
@@ -111,10 +137,10 @@
 			Interp_OverwriteExistingInterpretationsCheckbox.AutoSize = true;
 			Interp_OverwriteExistingInterpretationsCheckbox.Checked = true;
 			Interp_OverwriteExistingInterpretationsCheckbox.CheckState = CheckState.Checked;
-			Interp_OverwriteExistingInterpretationsCheckbox.Location = new Point(6, 99);
+			Interp_OverwriteExistingInterpretationsCheckbox.Location = new Point(357, 100);
 			Interp_OverwriteExistingInterpretationsCheckbox.Name = "Interp_OverwriteExistingInterpretationsCheckbox";
 			Interp_OverwriteExistingInterpretationsCheckbox.Size = new Size(255, 19);
-			Interp_OverwriteExistingInterpretationsCheckbox.TabIndex = 6;
+			Interp_OverwriteExistingInterpretationsCheckbox.TabIndex = 8;
 			Interp_OverwriteExistingInterpretationsCheckbox.Text = "Overwrite existing test result interpretations";
 			Interp_OverwriteExistingInterpretationsCheckbox.UseVisualStyleBackColor = true;
 			// 
@@ -253,5 +279,7 @@
 		private TextBox Validation_InputFileTextBox;
 		private Label Validation_InputFileLabel;
 		private ProgressBar BackgroundProcessProgressBar;
+		private RadioButton Interp_ClinicalBreakpointsRadioButton;
+		private RadioButton Interp_ECOFFsRadioButton;
 	}
 }

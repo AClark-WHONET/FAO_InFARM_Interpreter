@@ -48,10 +48,11 @@ namespace FAO_InFARM_Interpreter_Interface
 						// Interpretation mode.
 						string inputFile = Interp_InputFileTextBox.Text.Trim();
 						string outputFile = Interp_OutputFileTextBox.Text.Trim();
+						bool useClinicalBreakpoints = Interp_ClinicalBreakpointsRadioButton.Checked;
 						bool overwriteExistingInterpretations = Interp_OverwriteExistingInterpretationsCheckbox.Checked;
 
-						FAO_InFARM_Library.Interpretation.ProcessArguments interpArgs = 
-							new(inputFile, outputFile, overwriteExistingInterpretations);
+						FAO_InFARM_Library.Interpretation.ProcessArguments interpArgs =
+							new(inputFile, outputFile, useClinicalBreakpoints, overwriteExistingInterpretations);
 
 						Worker.DoWork += FAO_InFARM_Library.Interpretation.InterpretDataFile;
 						Worker.RunWorkerAsync(interpArgs);
@@ -67,7 +68,7 @@ namespace FAO_InFARM_Interpreter_Interface
 					ToggleUI(true);
 					throw;
 				}
-			}			
+			}
 		}
 
 		private void BackgroundProcessCompletedHandler(object? s, RunWorkerCompletedEventArgs e)
@@ -136,7 +137,7 @@ namespace FAO_InFARM_Interpreter_Interface
 
 				// Make sure the input and output file names are present,
 				// and that they don't match. (Overwritting the input file is not allowed.)
-				if (string.IsNullOrWhiteSpace(Interp_InputFileTextBox.Text) || string.IsNullOrWhiteSpace(Interp_OutputFileTextBox.Text)) 
+				if (string.IsNullOrWhiteSpace(Interp_InputFileTextBox.Text) || string.IsNullOrWhiteSpace(Interp_OutputFileTextBox.Text))
 					MessageBox.Show("You must provide both input and output file names.");
 
 				else if (Interp_InputFileTextBox.Text.Trim().Equals(Interp_OutputFileTextBox.Text.Trim(), StringComparison.InvariantCultureIgnoreCase))
@@ -157,6 +158,5 @@ namespace FAO_InFARM_Interpreter_Interface
 		}
 
 		#endregion
-
 	}
 }
