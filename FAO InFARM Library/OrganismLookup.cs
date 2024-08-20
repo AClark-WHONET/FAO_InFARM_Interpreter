@@ -2,6 +2,9 @@
 {
 	internal class OrganismLookup
 	{
+		/// <summary>
+		/// Map the InFARM code set to the WHONET organism codes.
+		/// </summary>
 		public static readonly Dictionary<string, string> InFARM_To_WHONET_Map = new()
 		{
 			["ESCCOL"] = "eco",

@@ -34,6 +34,13 @@ namespace FAO_InFARM_Library
 				"TIA", "TGC", "TIL", "TMP", "SXT", "TUL", "TYL", "VAN"
 			};
 
+		/// <summary>
+		/// Determine the corresponding WHONET drug column code given the inputs.
+		/// </summary>
+		/// <param name="drugCode"></param>
+		/// <param name="guideline"></param>
+		/// <param name="testMethod"></param>
+		/// <returns></returns>
 		public static string GetWHONET_DrugName(string drugCode, string guideline, string testMethod)
 		{
 			char guideLineChar;
@@ -96,9 +103,15 @@ namespace FAO_InFARM_Library
 			return string.Format("{0}_{1}{2}", drugCode, guideLineChar, testMethodAndPotency);
 		}
 
-		public static string GetInFARM_DrugName(string drugCode, bool quantitativeColumn)
+		/// <summary>
+		/// Each drug has measurement (VALUE_XXX) and interpretation (INT_XXX) fields.
+		/// </summary>
+		/// <param name="drugCode"></param>
+		/// <param name="measurementColumn"></param>
+		/// <returns></returns>
+		public static string GetInFARM_DrugName(string drugCode, bool measurementColumn)
 		{
-			if (quantitativeColumn)
+			if (measurementColumn)
 				return string.Format("VALUE_{0}", drugCode);
 			else
 				return string.Format("INT_{0}", drugCode);

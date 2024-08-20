@@ -1,31 +1,17 @@
 ﻿using AMR_Engine;
 using System.ComponentModel;
 using Microsoft.VisualBasic.FileIO;
-using System.Runtime.InteropServices;
-using System.Reflection.Metadata.Ecma335;
 
 namespace FAO_InFARM_Library
 {
-	public class Interpretation
+	public partial class Interpretation
 	{
-		public class ProcessArguments
-		{
-			public string InputFileName { get; }
-			public string OutputFileName { get; }
-			public bool UseClinicalBreakpoints { get; }
-			public bool OverwriteExistingInterpretations { get; }
-
-			public ProcessArguments(string inputFileName_, string outputFileName_, bool useClinicalBreakpoints_, bool overwriteExistingInterpretations_)
-			{
-				InputFileName = inputFileName_;
-				OutputFileName = outputFileName_;
-				UseClinicalBreakpoints = useClinicalBreakpoints_;
-				OverwriteExistingInterpretations = overwriteExistingInterpretations_;
-			}
-		}
-
-
-
+		/// <summary>
+		/// Generate interpretations for the data file.
+		/// </summary>
+		/// <param name="s"></param>
+		/// <param name="e"></param>
+		/// <exception cref="IOException"></exception>
 		public static void InterpretDataFile(object? s, DoWorkEventArgs e)
 		{
 			BackgroundWorker worker;
@@ -37,9 +23,9 @@ namespace FAO_InFARM_Library
 				return;
 			}
 
-			ProcessArguments args;
+			InterpretationProcessArguments args;
 			if (e.Argument != null)
-				args = (ProcessArguments)e.Argument;
+				args = (InterpretationProcessArguments)e.Argument;
 			else
 			{
 				e.Cancel = true;
@@ -78,7 +64,7 @@ namespace FAO_InFARM_Library
 			using StreamWriter writer = 
 				new(args.OutputFileName);
 
-			while (!parser.EndOfData)
+			while (!parser.EndOfData && !worker.CancellationPending)
 			{
 				if (parser.LineNumber == 1)
 				{
@@ -123,7 +109,7 @@ namespace FAO_InFARM_Library
 									GetAllInterpretations();
 
 							// Substitute the new interpretation values.
-							foreach (var result in results)
+							foreach (KeyValuePair<string, string> result in results)
 							{
 								string drugCode = result.Key.Substring(0, 3);
 								string infarmFieldName = DataFields.GetInFARM_DrugName(drugCode, false);
@@ -155,6 +141,11 @@ namespace FAO_InFARM_Library
 					worker.ReportProgress(lastReportedProgressPercentage);
 				}
 			}
+
+			if (worker.CancellationPending)
+				e.Cancel = true;
+			else
+				e.Result = totalLines;
 		}
 
 		#region private

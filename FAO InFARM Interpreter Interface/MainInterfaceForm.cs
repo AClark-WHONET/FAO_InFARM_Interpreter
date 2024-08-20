@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using System.Drawing.Text;
+using System.Diagnostics;
 
 namespace FAO_InFARM_Interpreter_Interface
 {
@@ -9,6 +9,8 @@ namespace FAO_InFARM_Interpreter_Interface
 		#region Private
 
 		private BackgroundWorker? Worker;
+
+		private readonly Stopwatch BackgroundWorkerTimer = new();
 
 		#endregion
 
@@ -51,10 +53,12 @@ namespace FAO_InFARM_Interpreter_Interface
 						bool useClinicalBreakpoints = Interp_ClinicalBreakpointsRadioButton.Checked;
 						bool overwriteExistingInterpretations = Interp_OverwriteExistingInterpretationsCheckbox.Checked;
 
-						FAO_InFARM_Library.Interpretation.ProcessArguments interpArgs =
+						FAO_InFARM_Library.Interpretation.InterpretationProcessArguments interpArgs =
 							new(inputFile, outputFile, useClinicalBreakpoints, overwriteExistingInterpretations);
 
 						Worker.DoWork += FAO_InFARM_Library.Interpretation.InterpretDataFile;
+						
+						BackgroundWorkerTimer.Restart();
 						Worker.RunWorkerAsync(interpArgs);
 					}
 					else
@@ -71,15 +75,42 @@ namespace FAO_InFARM_Interpreter_Interface
 			}
 		}
 
+		/// <summary>
+		/// Inform the user of the process completion status and enable the UI.
+		/// </summary>
+		/// <param name="s"></param>
+		/// <param name="e"></param>
 		private void BackgroundProcessCompletedHandler(object? s, RunWorkerCompletedEventArgs e)
 		{
-			MessageBox.Show("Processing completed.");
+			BackgroundWorkerTimer.Stop();
+
+			if (!e.Cancelled)
+			{
+				if (e.Error != null)
+					MessageBox.Show("Processing error: " + e.Error.Message);
+
+				else
+				{
+					string formattedTime;
+					if (BackgroundWorkerTimer.Elapsed.TotalMinutes > 60)
+						formattedTime = BackgroundWorkerTimer.Elapsed.ToString("h:mm:ss");
+					else if (BackgroundWorkerTimer.Elapsed.TotalMinutes >= 1)
+						formattedTime = BackgroundWorkerTimer.Elapsed.ToString("mm:ss");
+					else
+						formattedTime = string.Format("{0} seconds", BackgroundWorkerTimer.Elapsed.Seconds);
+
+					MessageBox.Show("Rows processed: " + ((long?)e.Result).ToString() + Environment.NewLine + "Duration: " + formattedTime);
+				}
+			}
+
+			// Enable the UI again now that the background work has completed.
 			ToggleUI(true);
 		}
 
 		private void ProgressMeterEventHandler(object? s, ProgressChangedEventArgs e)
 		{
 			BackgroundProcessProgressBar.Value = e.ProgressPercentage;
+			BackgroundProcessProgressPercentageLabel.Text = string.Format("{0}%", e.ProgressPercentage);
 		}
 
 		#endregion
@@ -158,5 +189,15 @@ namespace FAO_InFARM_Interpreter_Interface
 		}
 
 		#endregion
+
+		// Cancel the background task.
+		private void Cancel_Button_Click(object sender, EventArgs e)
+		{
+			if (Worker != null && Worker.IsBusy)
+			{
+				Cancel_Button.Enabled = false;
+				Worker.CancelAsync();
+			}
+		}
 	}
 }

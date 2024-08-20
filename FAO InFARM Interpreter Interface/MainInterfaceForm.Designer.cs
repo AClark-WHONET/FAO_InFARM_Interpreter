@@ -47,6 +47,7 @@
 			ExecuteButton = new Button();
 			Cancel_Button = new Button();
 			BackgroundProcessProgressBar = new ProgressBar();
+			BackgroundProcessProgressPercentageLabel = new Label();
 			TabContainer.SuspendLayout();
 			InterpretationTab.SuspendLayout();
 			ValidationTab.SuspendLayout();
@@ -226,12 +227,14 @@
 			// Cancel_Button
 			// 
 			Cancel_Button.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+			Cancel_Button.Enabled = false;
 			Cancel_Button.Location = new Point(657, 217);
 			Cancel_Button.Name = "Cancel_Button";
 			Cancel_Button.Size = new Size(131, 23);
 			Cancel_Button.TabIndex = 2;
 			Cancel_Button.Text = "Cancel";
 			Cancel_Button.UseVisualStyleBackColor = true;
+			Cancel_Button.Click += Cancel_Button_Click;
 			// 
 			// BackgroundProcessProgressBar
 			// 
@@ -241,11 +244,22 @@
 			BackgroundProcessProgressBar.Size = new Size(164, 23);
 			BackgroundProcessProgressBar.TabIndex = 3;
 			// 
+			// BackgroundProcessProgressPercentageLabel
+			// 
+			BackgroundProcessProgressPercentageLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+			BackgroundProcessProgressPercentageLabel.AutoSize = true;
+			BackgroundProcessProgressPercentageLabel.Location = new Point(182, 221);
+			BackgroundProcessProgressPercentageLabel.Name = "BackgroundProcessProgressPercentageLabel";
+			BackgroundProcessProgressPercentageLabel.Size = new Size(23, 15);
+			BackgroundProcessProgressPercentageLabel.TabIndex = 4;
+			BackgroundProcessProgressPercentageLabel.Text = "0%";
+			// 
 			// MainInterfaceForm
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			ClientSize = new Size(800, 252);
+			Controls.Add(BackgroundProcessProgressPercentageLabel);
 			Controls.Add(BackgroundProcessProgressBar);
 			Controls.Add(Cancel_Button);
 			Controls.Add(ExecuteButton);
@@ -259,6 +273,7 @@
 			ValidationTab.ResumeLayout(false);
 			ValidationTab.PerformLayout();
 			ResumeLayout(false);
+			PerformLayout();
 		}
 
 		#endregion
@@ -281,5 +296,6 @@
 		private ProgressBar BackgroundProcessProgressBar;
 		private RadioButton Interp_ClinicalBreakpointsRadioButton;
 		private RadioButton Interp_ECOFFsRadioButton;
+		private Label BackgroundProcessProgressPercentageLabel;
 	}
 }
