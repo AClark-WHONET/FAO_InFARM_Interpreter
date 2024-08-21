@@ -1,4 +1,5 @@
 ﻿using AMR_Engine;
+using static AMR_Engine.Antibiotic;
 
 namespace FAO_InFARM_Library
 {
@@ -35,13 +36,21 @@ namespace FAO_InFARM_Library
 			};
 
 		/// <summary>
+		/// These InFARM fields can vary within an isolate (one isolate may have many rows).
+		/// </summary>
+		public static readonly List<string> AntibioticFields = 
+			InFARM_Antibiotics.Select(a => GetInFARM_DrugName(a, true)).ToList().
+			Concat(InFARM_Antibiotics.Select(a => GetInFARM_DrugName(a, false))).ToList().
+			Concat([GUIDELINE.InFARM_Name, MET_AST.InFARM_Name]).ToList();
+
+		/// <summary>
 		/// Determine the corresponding WHONET drug column code given the inputs.
 		/// </summary>
 		/// <param name="drugCode"></param>
 		/// <param name="guideline"></param>
 		/// <param name="testMethod"></param>
 		/// <returns></returns>
-		public static string GetWHONET_DrugName(string drugCode, string guideline, string testMethod)
+		public static string GetWHONET_DrugCode(string drugCode, string guideline, string testMethod)
 		{
 			char guideLineChar;
 			switch (guideline)
@@ -101,6 +110,57 @@ namespace FAO_InFARM_Library
 
 			// Return the drug code in the WHONET format.
 			return string.Format("{0}_{1}{2}", drugCode, guideLineChar, testMethodAndPotency);
+		}
+
+		/// <summary>
+		/// Given a WHONET drug code, return the corresponding InFARM codes so that we can determine
+		/// which InFARM row the result belongs to.
+		/// </summary>
+		/// <returns></returns>
+		public static Tuple<string, HashSet<string>>? GetInFARM_GuidelineAndMethod(string whonetDrugCode)
+		{
+			// Guideline is always at index 4.
+			string infarmGuideline;
+			char guideLineChar = whonetDrugCode[4];
+			switch (guideLineChar)
+			{
+				case 'N':
+					infarmGuideline = "CLSI";
+					break;
+
+				case 'E':
+					infarmGuideline = "EUCAST";
+					break;
+
+				default:
+					return null;
+			}
+
+			// Test method is always at index 5.
+			char testMethod = whonetDrugCode[5];
+			HashSet<string> infarmTestMethods = new();
+			switch (testMethod)
+			{
+				case 'M':
+					// We will look for rows matching any of these. There should only be one match in practice.
+					infarmTestMethods.Add("AUTO");
+					infarmTestMethods.Add("BD");
+					infarmTestMethods.Add("BMICRO");
+					break;
+
+				case 'E':
+					infarmTestMethods.Add("CGT");
+					break;
+
+				case 'D':
+					infarmTestMethods.Add("DD");
+					break;
+
+				default:
+					return null;
+			}
+
+			return new Tuple<string, HashSet<string>>(infarmGuideline, infarmTestMethods);
 		}
 
 		/// <summary>

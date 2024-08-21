@@ -93,9 +93,9 @@ namespace FAO_InFARM_Interpreter_Interface
 				{
 					string formattedTime;
 					if (BackgroundWorkerTimer.Elapsed.TotalMinutes > 60)
-						formattedTime = BackgroundWorkerTimer.Elapsed.ToString("h:mm:ss");
+						formattedTime = BackgroundWorkerTimer.Elapsed.ToString(@"h\:mm\:ss");
 					else if (BackgroundWorkerTimer.Elapsed.TotalMinutes >= 1)
-						formattedTime = BackgroundWorkerTimer.Elapsed.ToString("mm:ss");
+						formattedTime = BackgroundWorkerTimer.Elapsed.ToString(@"mm\:ss");
 					else
 						formattedTime = string.Format("{0} seconds", BackgroundWorkerTimer.Elapsed.Seconds);
 
