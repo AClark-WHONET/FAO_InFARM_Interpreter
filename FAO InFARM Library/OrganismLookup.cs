@@ -54,9 +54,7 @@
 			["VIBPAR"] = "vip",
 			["VIBSPP"] = "vi-",
 			["VIBVUL"] = "vvu",
-			["YERRUS"] = "yru",
-			["ND"] = "xxx",
-			["O"] = "oth"
+			["YERRUS"] = "yru"
 		};
 	}
 }

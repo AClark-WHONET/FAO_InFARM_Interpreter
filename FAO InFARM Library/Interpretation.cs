@@ -181,9 +181,11 @@ namespace FAO_InFARM_Library
 							string drugCode = result.Key.Substring(0, 3);
 							string infarmFieldName = DataFields.GetInFARM_DrugName(drugCode, false);
 
+							// Remove interpretation comments. Convert any SDD's to S's for the protocol.
 							string cleanInterp = result.Value.
 								Replace("*", string.Empty).
-								Replace("!", string.Empty);
+								Replace("!", string.Empty).
+								Replace("SDD", "S");
 
 							if (string.IsNullOrEmpty(cleanInterp) || cleanInterp == "?")
 								cleanInterp = "NI";
@@ -284,7 +286,10 @@ namespace FAO_InFARM_Library
 						continue;
 
 					// Add this drug result to the list of requested interpretations.
-					output.Add(whonetFieldName, infarmQuantitativeResult);
+					if (!output.ContainsKey(whonetFieldName))
+						output.Add(whonetFieldName, infarmQuantitativeResult);
+					else if (string.IsNullOrWhiteSpace(output[whonetFieldName]) && !string.IsNullOrWhiteSpace(infarmQuantitativeResult))
+						output[whonetFieldName] = infarmQuantitativeResult;
 				}
 			}
 
