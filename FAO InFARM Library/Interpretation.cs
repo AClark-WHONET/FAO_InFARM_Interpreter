@@ -117,14 +117,18 @@ namespace FAO_InFARM_Library
 						ProcessIsolateRows(writer, headerLookup, isolateRows, args.OverwriteExistingInterpretations, interpConfig);
 				}
 
-				int currentProgressPercentage = 
+				if (!worker.CancellationPending)
+				{
+					// Avoid reporting progress if the user has requested cancellation since the beginning of this iteration.
+					int currentProgressPercentage =
 					Convert.ToInt32(parser.LineNumber * 100L / totalLines);
 
-				if (currentProgressPercentage > lastReportedProgressPercentage)
-				{
-					lastReportedProgressPercentage = currentProgressPercentage;
-					worker.ReportProgress(lastReportedProgressPercentage);
-				}
+					if (currentProgressPercentage > lastReportedProgressPercentage)
+					{
+						lastReportedProgressPercentage = currentProgressPercentage;
+						worker.ReportProgress(lastReportedProgressPercentage);
+					}
+				}				
 			}
 
 			if (worker.CancellationPending)
@@ -199,7 +203,13 @@ namespace FAO_InFARM_Library
 									&& infarmGuidelineAndMethods.Item2.Contains(isolateRows[x][headerLookup[DataFields.MET_AST.InFARM_Name]]))
 								{
 									isolateRows[x][headerLookup[infarmFieldName]] = cleanInterp;
-									break;
+									
+									// Ordinarily, we should break the loop here.
+									// Instead, let it process all of the rows for the isolate.
+									// Sometimes a data file has duplicate isolates without any lines between.
+									// In order to ensure that the interpretation propagates to the subsequent copies,
+									// allow the loop to continue here after we've found the first match,
+									// which should be distinct, but isn't because of the duplicate input rows.
 								}
 							}
 						}

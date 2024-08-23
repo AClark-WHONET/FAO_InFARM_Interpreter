@@ -84,7 +84,10 @@ namespace FAO_InFARM_Interpreter_Interface
 		{
 			BackgroundWorkerTimer.Stop();
 
-			if (!e.Cancelled)
+			if (e.Cancelled)
+				BackgroundProcessProgressPercentageLabel.Text += " - " + "Processing cancelled.";
+
+			else
 			{
 				if (e.Error != null)
 					MessageBox.Show("Processing error: " + e.Error.Message);
