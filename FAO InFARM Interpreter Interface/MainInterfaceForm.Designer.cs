@@ -265,6 +265,7 @@
 			Controls.Add(ExecuteButton);
 			Controls.Add(TabContainer);
 			Icon = (Icon)resources.GetObject("$this.Icon");
+			MinimumSize = new Size(816, 291);
 			Name = "MainInterfaceForm";
 			Text = "FAO InFARM Model A Data File Interpreter";
 			TabContainer.ResumeLayout(false);

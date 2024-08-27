@@ -1,5 +1,4 @@
 ﻿using AMR_Engine;
-using static AMR_Engine.Antibiotic;
 
 namespace FAO_InFARM_Library
 {

@@ -1,6 +1,7 @@
 ﻿using AMR_Engine;
 using System.ComponentModel;
 using Microsoft.VisualBasic.FileIO;
+using System.Runtime.InteropServices;
 
 namespace FAO_InFARM_Library
 {
@@ -66,6 +67,8 @@ namespace FAO_InFARM_Library
 			using StreamWriter writer = 
 				new(args.OutputFileName);
 
+			Dictionary<string, HashSet<string>> currentIsolateGuidelinesAndMethods = new();
+
 			List<string[]> isolateRows = new();
 			while (!parser.EndOfData && !worker.CancellationPending)
 			{
@@ -94,25 +97,53 @@ namespace FAO_InFARM_Library
 					// Read the new row of input data.
 					string[]? rowValues = parser.ReadFields();
 
+					string? infarmGuideline = rowValues?[headerLookup[DataFields.GUIDELINE.InFARM_Name]];
+					string? infarmTestMethod = rowValues?[headerLookup[DataFields.MET_AST.InFARM_Name]];
+
 					if (isolateRows.Count == 0)
+					{
 						isolateRows.Add(rowValues);
 
-					else if (rowValues == null || FixedColumns.Any(idx => rowValues?[idx] != isolateRows[0][idx]))
+						if (infarmGuideline != null && infarmTestMethod != null)
+							currentIsolateGuidelinesAndMethods.Add(infarmGuideline, new HashSet<string> { infarmTestMethod });
+					}
+
+					else if (rowValues == null
+							|| FixedColumns.Any(idx => rowValues?[idx] != isolateRows[0][idx])
+							|| (infarmGuideline != null && infarmTestMethod != null && currentIsolateGuidelinesAndMethods.ContainsKey(infarmGuideline) && currentIsolateGuidelinesAndMethods[infarmGuideline].Contains(infarmTestMethod)))
 					{
+						// Any of the three above conditions indicates an isolate boundary.
+						// The last condition ensures that duplicate isolates in sequence in the file are handled independently.
 						if (isolateRows.Any())
 							// Process the existing data.
 							ProcessIsolateRows(writer, headerLookup, isolateRows, args.OverwriteExistingInterpretations, interpConfig);
 
 						// Start a new isolate with the current rowValues.
 						isolateRows.Clear();
+						currentIsolateGuidelinesAndMethods.Clear();
 
 						if (rowValues != null)
+						{
 							isolateRows.Add(rowValues);
+
+							if (infarmGuideline != null && infarmTestMethod != null)
+								currentIsolateGuidelinesAndMethods.Add(infarmGuideline, new HashSet<string> { infarmTestMethod });
+						}							
 					}
 					else
+					{
 						// This row is part of the same isolate.
 						isolateRows.Add(rowValues);
 
+						if (infarmGuideline != null && infarmTestMethod != null)
+						{
+							if (currentIsolateGuidelinesAndMethods.ContainsKey(infarmGuideline))
+								currentIsolateGuidelinesAndMethods[infarmGuideline].Add(infarmTestMethod);
+							else
+								currentIsolateGuidelinesAndMethods.Add(infarmGuideline, new HashSet<string> { infarmTestMethod });
+						}							
+					}
+						
 					if (parser.LineNumber == -1 && isolateRows.Any())
 						ProcessIsolateRows(writer, headerLookup, isolateRows, args.OverwriteExistingInterpretations, interpConfig);
 				}
@@ -120,8 +151,11 @@ namespace FAO_InFARM_Library
 				if (!worker.CancellationPending)
 				{
 					// Avoid reporting progress if the user has requested cancellation since the beginning of this iteration.
-					int currentProgressPercentage =
-					Convert.ToInt32(parser.LineNumber * 100L / totalLines);
+					int currentProgressPercentage;
+					if (parser.LineNumber == -1)
+						currentProgressPercentage = 100;
+					else
+						currentProgressPercentage = Convert.ToInt32((parser.LineNumber - 1L) * 100L / totalLines);
 
 					if (currentProgressPercentage > lastReportedProgressPercentage)
 					{
@@ -203,13 +237,7 @@ namespace FAO_InFARM_Library
 									&& infarmGuidelineAndMethods.Item2.Contains(isolateRows[x][headerLookup[DataFields.MET_AST.InFARM_Name]]))
 								{
 									isolateRows[x][headerLookup[infarmFieldName]] = cleanInterp;
-									
-									// Ordinarily, we should break the loop here.
-									// Instead, let it process all of the rows for the isolate.
-									// Sometimes a data file has duplicate isolates without any lines between.
-									// In order to ensure that the interpretation propagates to the subsequent copies,
-									// allow the loop to continue here after we've found the first match,
-									// which should be distinct, but isn't because of the duplicate input rows.
+									break;
 								}
 							}
 						}
