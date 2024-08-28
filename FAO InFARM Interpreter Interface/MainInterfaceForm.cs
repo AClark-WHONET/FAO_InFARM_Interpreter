@@ -27,6 +27,11 @@ namespace FAO_InFARM_Interpreter_Interface
 
 		#region General
 
+		/// <summary>
+		/// Validate the user options and launch the selected background process.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void ExecuteButton_Click(object sender, EventArgs e)
 		{
 			if (ValidateUserOptions())
@@ -45,7 +50,7 @@ namespace FAO_InFARM_Interpreter_Interface
 					Worker.RunWorkerCompleted += BackgroundProcessCompletedHandler;
 					Worker.ProgressChanged += ProgressMeterEventHandler;
 
-					if (TabContainer.SelectedTab == InterpretationTab)
+					if (InterpretDataFileRadioButton.Checked)
 					{
 						// Interpretation mode.
 						string inputFile = Interp_InputFileTextBox.Text.Trim();
@@ -57,7 +62,7 @@ namespace FAO_InFARM_Interpreter_Interface
 							new(inputFile, outputFile, useClinicalBreakpoints, overwriteExistingInterpretations);
 
 						Worker.DoWork += FAO_InFARM_Library.Interpretation.InterpretDataFile;
-						
+
 						BackgroundWorkerTimer.Restart();
 						Worker.RunWorkerAsync(interpArgs);
 					}
@@ -110,6 +115,11 @@ namespace FAO_InFARM_Interpreter_Interface
 			ToggleUI(true);
 		}
 
+		/// <summary>
+		/// Handle progress events from the background process.
+		/// </summary>
+		/// <param name="s"></param>
+		/// <param name="e"></param>
 		private void ProgressMeterEventHandler(object? s, ProgressChangedEventArgs e)
 		{
 			BackgroundProcessProgressBar.Value = e.ProgressPercentage;
@@ -159,13 +169,17 @@ namespace FAO_InFARM_Interpreter_Interface
 		private void ToggleUI(bool enabled)
 		{
 			ExecuteButton.Enabled = enabled;
-			TabContainer.Enabled = enabled;
+			MainPanel.Enabled = enabled;
 			Cancel_Button.Enabled = !enabled;
 		}
 
+		/// <summary>
+		/// Validate the user's settings on screen before launching the background job.
+		/// </summary>
+		/// <returns></returns>
 		private bool ValidateUserOptions()
 		{
-			if (TabContainer.SelectedTab == InterpretationTab)
+			if (InterpretDataFileRadioButton.Checked)
 			{
 				// Interpretation mode.
 
@@ -193,7 +207,11 @@ namespace FAO_InFARM_Interpreter_Interface
 
 		#endregion
 
-		// Cancel the background task.
+		/// <summary>
+		/// Cancel the background task.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void Cancel_Button_Click(object sender, EventArgs e)
 		{
 			if (Worker != null && Worker.IsBusy)
@@ -201,6 +219,20 @@ namespace FAO_InFARM_Interpreter_Interface
 				Cancel_Button.Enabled = false;
 				Worker.CancelAsync();
 			}
+		}
+
+		/// <summary>
+		/// The option for overwritting interpretations is not relevant for validation mode.
+		/// Disable the checkbox accordingly.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void ValidateDataFileRadioButton_CheckedChanged(object sender, EventArgs e)
+		{
+			if (sender == ValidateDataFileRadioButton)
+				Interp_OverwriteExistingInterpretationsCheckbox.Enabled =  !((RadioButton)sender).Checked;
+			else
+				Interp_OverwriteExistingInterpretationsCheckbox.Enabled =  ((RadioButton)sender).Checked;
 		}
 	}
 }
