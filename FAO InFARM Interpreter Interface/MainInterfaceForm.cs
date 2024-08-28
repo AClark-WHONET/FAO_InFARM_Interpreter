@@ -50,26 +50,19 @@ namespace FAO_InFARM_Interpreter_Interface
 					Worker.RunWorkerCompleted += BackgroundProcessCompletedHandler;
 					Worker.ProgressChanged += ProgressMeterEventHandler;
 
-					if (InterpretDataFileRadioButton.Checked)
-					{
-						// Interpretation mode.
-						string inputFile = Interp_InputFileTextBox.Text.Trim();
-						string outputFile = Interp_OutputFileTextBox.Text.Trim();
-						bool useClinicalBreakpoints = Interp_ClinicalBreakpointsRadioButton.Checked;
-						bool overwriteExistingInterpretations = Interp_OverwriteExistingInterpretationsCheckbox.Checked;
+					bool interpretationMode = InterpretDataFileRadioButton.Checked;
+					string inputFile = Interp_InputFileTextBox.Text.Trim();
+					string outputFile = Interp_OutputFileTextBox.Text.Trim();
+					bool useClinicalBreakpoints = Interp_ClinicalBreakpointsRadioButton.Checked;
+					bool overwriteExistingInterpretations = Interp_OverwriteExistingInterpretationsCheckbox.Checked;
 
-						FAO_InFARM_Library.Interpretation.InterpretationProcessArguments interpArgs =
-							new(inputFile, outputFile, useClinicalBreakpoints, overwriteExistingInterpretations);
+					FAO_InFARM_Library.InterpretationAndValidation.ProcessArguments interpArgs =
+						new(interpretationMode, inputFile, outputFile, useClinicalBreakpoints, overwriteExistingInterpretations);
 
-						Worker.DoWork += FAO_InFARM_Library.Interpretation.InterpretDataFile;
+					Worker.DoWork += FAO_InFARM_Library.InterpretationAndValidation.ProcessDataFile;
 
-						BackgroundWorkerTimer.Restart();
-						Worker.RunWorkerAsync(interpArgs);
-					}
-					else
-					{
-						// Validation mode.
-					}
+					BackgroundWorkerTimer.Restart();
+					Worker.RunWorkerAsync(interpArgs);
 				}
 				catch
 				{
@@ -179,28 +172,16 @@ namespace FAO_InFARM_Interpreter_Interface
 		/// <returns></returns>
 		private bool ValidateUserOptions()
 		{
-			if (InterpretDataFileRadioButton.Checked)
-			{
-				// Interpretation mode.
+			// Make sure the input and output file names are present,
+			// and that they don't match. (Overwritting the input file is not allowed.)
+			if (string.IsNullOrWhiteSpace(Interp_InputFileTextBox.Text) || string.IsNullOrWhiteSpace(Interp_OutputFileTextBox.Text))
+				MessageBox.Show("You must provide both input and output file names.");
 
-				// Make sure the input and output file names are present,
-				// and that they don't match. (Overwritting the input file is not allowed.)
-				if (string.IsNullOrWhiteSpace(Interp_InputFileTextBox.Text) || string.IsNullOrWhiteSpace(Interp_OutputFileTextBox.Text))
-					MessageBox.Show("You must provide both input and output file names.");
+			else if (Interp_InputFileTextBox.Text.Trim().Equals(Interp_OutputFileTextBox.Text.Trim(), StringComparison.InvariantCultureIgnoreCase))
+				MessageBox.Show("You may not overwrite the input file. Please choose another output file name.");
 
-				else if (Interp_InputFileTextBox.Text.Trim().Equals(Interp_OutputFileTextBox.Text.Trim(), StringComparison.InvariantCultureIgnoreCase))
-					MessageBox.Show("You may not overwrite the input file. Please choose another output file name.");
-
-				else
-					return true;
-			}
 			else
-			{
-				// Validation mode.
-
-				// No validation implemented yet.
 				return true;
-			}
 
 			return false;
 		}

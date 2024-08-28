@@ -77,7 +77,7 @@
 			// Interp_OutputFileLabel
 			// 
 			Interp_OutputFileLabel.AutoSize = true;
-			Interp_OutputFileLabel.Location = new Point(3, 155);
+			Interp_OutputFileLabel.Location = new Point(3, 140);
 			Interp_OutputFileLabel.Name = "Interp_OutputFileLabel";
 			Interp_OutputFileLabel.Size = new Size(154, 15);
 			Interp_OutputFileLabel.TabIndex = 6;
@@ -86,7 +86,7 @@
 			// Interp_BrowseOutputFileButton
 			// 
 			Interp_BrowseOutputFileButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-			Interp_BrowseOutputFileButton.Location = new Point(645, 173);
+			Interp_BrowseOutputFileButton.Location = new Point(640, 158);
 			Interp_BrowseOutputFileButton.Name = "Interp_BrowseOutputFileButton";
 			Interp_BrowseOutputFileButton.Size = new Size(131, 23);
 			Interp_BrowseOutputFileButton.TabIndex = 5;
@@ -97,9 +97,9 @@
 			// Interp_OutputFileTextBox
 			// 
 			Interp_OutputFileTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-			Interp_OutputFileTextBox.Location = new Point(3, 173);
+			Interp_OutputFileTextBox.Location = new Point(3, 158);
 			Interp_OutputFileTextBox.Name = "Interp_OutputFileTextBox";
-			Interp_OutputFileTextBox.Size = new Size(636, 23);
+			Interp_OutputFileTextBox.Size = new Size(631, 23);
 			Interp_OutputFileTextBox.TabIndex = 4;
 			// 
 			// Interp_OverwriteExistingInterpretationsCheckbox
@@ -107,7 +107,7 @@
 			Interp_OverwriteExistingInterpretationsCheckbox.AutoSize = true;
 			Interp_OverwriteExistingInterpretationsCheckbox.Checked = true;
 			Interp_OverwriteExistingInterpretationsCheckbox.CheckState = CheckState.Checked;
-			Interp_OverwriteExistingInterpretationsCheckbox.Location = new Point(10, 69);
+			Interp_OverwriteExistingInterpretationsCheckbox.Location = new Point(7, 47);
 			Interp_OverwriteExistingInterpretationsCheckbox.Name = "Interp_OverwriteExistingInterpretationsCheckbox";
 			Interp_OverwriteExistingInterpretationsCheckbox.Size = new Size(255, 19);
 			Interp_OverwriteExistingInterpretationsCheckbox.TabIndex = 8;
@@ -117,7 +117,7 @@
 			// Interp_BrowseForInputFileButton
 			// 
 			Interp_BrowseForInputFileButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-			Interp_BrowseForInputFileButton.Location = new Point(645, 129);
+			Interp_BrowseForInputFileButton.Location = new Point(640, 114);
 			Interp_BrowseForInputFileButton.Name = "Interp_BrowseForInputFileButton";
 			Interp_BrowseForInputFileButton.Size = new Size(131, 23);
 			Interp_BrowseForInputFileButton.TabIndex = 2;
@@ -128,15 +128,15 @@
 			// Interp_InputFileTextBox
 			// 
 			Interp_InputFileTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-			Interp_InputFileTextBox.Location = new Point(3, 129);
+			Interp_InputFileTextBox.Location = new Point(3, 114);
 			Interp_InputFileTextBox.Name = "Interp_InputFileTextBox";
-			Interp_InputFileTextBox.Size = new Size(636, 23);
+			Interp_InputFileTextBox.Size = new Size(631, 23);
 			Interp_InputFileTextBox.TabIndex = 1;
 			// 
 			// Interp_InputFileLabel
 			// 
 			Interp_InputFileLabel.AutoSize = true;
-			Interp_InputFileLabel.Location = new Point(3, 111);
+			Interp_InputFileLabel.Location = new Point(3, 96);
 			Interp_InputFileLabel.Name = "Interp_InputFileLabel";
 			Interp_InputFileLabel.Size = new Size(191, 15);
 			Interp_InputFileLabel.TabIndex = 0;
@@ -145,7 +145,7 @@
 			// ExecuteButton
 			// 
 			ExecuteButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-			ExecuteButton.Location = new Point(520, 227);
+			ExecuteButton.Location = new Point(515, 208);
 			ExecuteButton.Name = "ExecuteButton";
 			ExecuteButton.Size = new Size(131, 23);
 			ExecuteButton.TabIndex = 1;
@@ -157,7 +157,7 @@
 			// 
 			Cancel_Button.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
 			Cancel_Button.Enabled = false;
-			Cancel_Button.Location = new Point(657, 227);
+			Cancel_Button.Location = new Point(652, 208);
 			Cancel_Button.Name = "Cancel_Button";
 			Cancel_Button.Size = new Size(131, 23);
 			Cancel_Button.TabIndex = 2;
@@ -168,7 +168,7 @@
 			// BackgroundProcessProgressBar
 			// 
 			BackgroundProcessProgressBar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-			BackgroundProcessProgressBar.Location = new Point(12, 227);
+			BackgroundProcessProgressBar.Location = new Point(12, 208);
 			BackgroundProcessProgressBar.Name = "BackgroundProcessProgressBar";
 			BackgroundProcessProgressBar.Size = new Size(164, 23);
 			BackgroundProcessProgressBar.TabIndex = 3;
@@ -177,7 +177,7 @@
 			// 
 			BackgroundProcessProgressPercentageLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
 			BackgroundProcessProgressPercentageLabel.AutoSize = true;
-			BackgroundProcessProgressPercentageLabel.Location = new Point(182, 231);
+			BackgroundProcessProgressPercentageLabel.Location = new Point(182, 212);
 			BackgroundProcessProgressPercentageLabel.Name = "BackgroundProcessProgressPercentageLabel";
 			BackgroundProcessProgressPercentageLabel.Size = new Size(23, 15);
 			BackgroundProcessProgressPercentageLabel.TabIndex = 4;
@@ -198,9 +198,10 @@
 			// 
 			UtilityModeGroupBox.Controls.Add(ValidateDataFileRadioButton);
 			UtilityModeGroupBox.Controls.Add(InterpretDataFileRadioButton);
+			UtilityModeGroupBox.Controls.Add(Interp_OverwriteExistingInterpretationsCheckbox);
 			UtilityModeGroupBox.Location = new Point(3, 3);
 			UtilityModeGroupBox.Name = "UtilityModeGroupBox";
-			UtilityModeGroupBox.Size = new Size(489, 60);
+			UtilityModeGroupBox.Size = new Size(489, 78);
 			UtilityModeGroupBox.TabIndex = 10;
 			UtilityModeGroupBox.TabStop = false;
 			UtilityModeGroupBox.Text = "Mode";
@@ -240,26 +241,25 @@
 			MainPanel.Controls.Add(Interp_OutputFileTextBox);
 			MainPanel.Controls.Add(Interp_BrowseOutputFileButton);
 			MainPanel.Controls.Add(Interp_OutputFileLabel);
-			MainPanel.Controls.Add(Interp_OverwriteExistingInterpretationsCheckbox);
 			MainPanel.Location = new Point(12, 12);
 			MainPanel.Name = "MainPanel";
-			MainPanel.Size = new Size(785, 209);
+			MainPanel.Size = new Size(780, 190);
 			MainPanel.TabIndex = 11;
 			// 
 			// MainInterfaceForm
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(800, 262);
+			ClientSize = new Size(795, 243);
 			Controls.Add(MainPanel);
 			Controls.Add(BackgroundProcessProgressPercentageLabel);
 			Controls.Add(BackgroundProcessProgressBar);
 			Controls.Add(Cancel_Button);
 			Controls.Add(ExecuteButton);
 			Icon = (Icon)resources.GetObject("$this.Icon");
-			MinimumSize = new Size(816, 291);
+			MinimumSize = new Size(811, 282);
 			Name = "MainInterfaceForm";
-			Text = "FAO InFARM Model A Data File Interpreter";
+			Text = "FAO InFARM Model A Data File Utility";
 			BreakpointGroupBox.ResumeLayout(false);
 			BreakpointGroupBox.PerformLayout();
 			UtilityModeGroupBox.ResumeLayout(false);

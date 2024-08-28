@@ -1,11 +1,10 @@
 ﻿using AMR_Engine;
 using System.ComponentModel;
 using Microsoft.VisualBasic.FileIO;
-using System.Runtime.InteropServices;
 
 namespace FAO_InFARM_Library
 {
-	public partial class Interpretation
+	public partial class InterpretationAndValidation
 	{
 		/// <summary>
 		/// Generate interpretations for the data file.
@@ -13,7 +12,7 @@ namespace FAO_InFARM_Library
 		/// <param name="s"></param>
 		/// <param name="e"></param>
 		/// <exception cref="IOException"></exception>
-		public static void InterpretDataFile(object? s, DoWorkEventArgs e)
+		public static void ProcessDataFile(object? s, DoWorkEventArgs e)
 		{
 			BackgroundWorker worker;
 			if (s != null)
@@ -24,9 +23,9 @@ namespace FAO_InFARM_Library
 				return;
 			}
 
-			InterpretationProcessArguments args;
+			ProcessArguments args;
 			if (e.Argument != null)
-				args = (InterpretationProcessArguments)e.Argument;
+				args = (ProcessArguments)e.Argument;
 			else
 			{
 				e.Cancel = true;
@@ -46,10 +45,10 @@ namespace FAO_InFARM_Library
 				// Use ECOFFs instead of clinical breakpoints.
 				interpConfig.PrioritizedBreakpointTypes.Clear();
 				interpConfig.PrioritizedBreakpointTypes.Add(Breakpoint.BreakpointTypes.ECOFF);
-			}			
+			}
 
 			// Get a line count without having to read the file into memory or loop.
-			long totalLines = 
+			long totalLines =
 				File.ReadLines(args.InputFileName).LongCount();
 
 			Dictionary<string, int> headerLookup = new();
@@ -64,7 +63,7 @@ namespace FAO_InFARM_Library
 				};
 			parser.SetDelimiters(Constants.InFARM_Delimiter);
 
-			using StreamWriter writer = 
+			using StreamWriter writer =
 				new(args.OutputFileName);
 
 			Dictionary<string, HashSet<string>> currentIsolateGuidelinesAndMethods = new();
@@ -74,7 +73,7 @@ namespace FAO_InFARM_Library
 			{
 				if (parser.LineNumber == 1)
 				{
-					string[]? headerArray = 
+					string[]? headerArray =
 						parser.ReadFields() ?? throw new IOException("Invalid InFARM data file provided.");
 
 					for (int x = 0; x < headerArray.Length; x++)
@@ -116,7 +115,7 @@ namespace FAO_InFARM_Library
 						// The last condition ensures that duplicate isolates in sequence in the file are handled independently.
 						if (isolateRows.Any())
 							// Process the existing data.
-							ProcessIsolateRows(writer, headerLookup, isolateRows, args.OverwriteExistingInterpretations, interpConfig);
+							ProcessIsolateRows(writer, headerLookup, isolateRows, args, interpConfig);
 
 						// Start a new isolate with the current rowValues.
 						isolateRows.Clear();
@@ -128,7 +127,7 @@ namespace FAO_InFARM_Library
 
 							if (infarmGuideline != null && infarmTestMethod != null)
 								currentIsolateGuidelinesAndMethods.Add(infarmGuideline, new HashSet<string> { infarmTestMethod });
-						}							
+						}
 					}
 					else
 					{
@@ -141,11 +140,11 @@ namespace FAO_InFARM_Library
 								currentIsolateGuidelinesAndMethods[infarmGuideline].Add(infarmTestMethod);
 							else
 								currentIsolateGuidelinesAndMethods.Add(infarmGuideline, new HashSet<string> { infarmTestMethod });
-						}							
+						}
 					}
-						
+
 					if (parser.LineNumber == -1 && isolateRows.Any())
-						ProcessIsolateRows(writer, headerLookup, isolateRows, args.OverwriteExistingInterpretations, interpConfig);
+						ProcessIsolateRows(writer, headerLookup, isolateRows, args, interpConfig);
 				}
 
 				if (!worker.CancellationPending)
@@ -162,7 +161,7 @@ namespace FAO_InFARM_Library
 						lastReportedProgressPercentage = currentProgressPercentage;
 						worker.ReportProgress(lastReportedProgressPercentage);
 					}
-				}				
+				}
 			}
 
 			if (worker.CancellationPending)
@@ -181,16 +180,18 @@ namespace FAO_InFARM_Library
 		/// <param name="isolateRows"></param>
 		/// <param name="overwriteExistingInterpretations"></param>
 		/// <param name="interpConfig"></param>
-		private static void ProcessIsolateRows(StreamWriter writer, Dictionary<string, int> headerLookup, List<string[]> isolateRows, 
-			bool overwriteExistingInterpretations, InterpretationConfiguration interpConfig)
+		private static void ProcessIsolateRows(StreamWriter writer, Dictionary<string, int> headerLookup, List<string[]> isolateRows,
+			ProcessArguments processArgs, InterpretationConfiguration interpConfig)
 		{
+			bool differenceDiscovered = false;
+
 			if (isolateRows is not null)
 			{
 				// Convert relevant fields from this InFARM row over to a structure and code set readable by the interpreter.
 				// Relevant fields include: Organism (converted to WHONET codes), antibiotics (converted from InFARM format to WHONET).
 				// Don't include antibiotics with interpretations if overwrite mode is not indicated.
 				Dictionary<string, string>? convertedInterpretationInput =
-				ConvertToInterpreterFormat(headerLookup, isolateRows, overwriteExistingInterpretations);
+				ConvertToInterpreterFormat(headerLookup, isolateRows, processArgs.OverwriteExistingInterpretations);
 
 				// The conversion routine above won't populate the dictionary if the data row is missing
 				// the organism code, guideline, or does not contain any quantitative results.
@@ -236,19 +237,42 @@ namespace FAO_InFARM_Library
 								if (isolateRows[x][headerLookup[DataFields.GUIDELINE.InFARM_Name]] == infarmGuidelineAndMethods.Item1
 									&& infarmGuidelineAndMethods.Item2.Contains(isolateRows[x][headerLookup[DataFields.MET_AST.InFARM_Name]]))
 								{
-									isolateRows[x][headerLookup[infarmFieldName]] = cleanInterp;
-									break;
+									if (processArgs.InterpretationMode)
+									{
+										isolateRows[x][headerLookup[infarmFieldName]] = cleanInterp;
+										break;
+									}
+									else
+									{
+										// Validation mode.
+										if (isolateRows[x][headerLookup[infarmFieldName]] != cleanInterp)
+										{
+											// Leave the original interpretation (or lack there of) and append ours.
+											isolateRows[x][headerLookup[infarmFieldName]] += string.Format("<>{0}", cleanInterp);
+
+											if (!differenceDiscovered)
+												differenceDiscovered = true;
+
+											break;
+										}
+									}
 								}
 							}
 						}
 					}
 				}
 
-				// Write the rows for this isolate.
-				foreach (string[]? row in isolateRows)
-					writer.WriteLine(ToLine(row));
+				// Always write output in interpretation mode.
+				// When validating, we will only write the isolate when an interpretation difference was discovered on any row for this isolate.
+				if (processArgs.InterpretationMode || differenceDiscovered)
+				{
+					// Write the rows for this isolate.
+					foreach (string[]? row in isolateRows)
+						writer.WriteLine(ToLine(row));
+				}
 			}
-			else
+			else if (processArgs.InterpretationMode)
+				// Don't write empty lines unless in interpretation mode.
 				writer.WriteLine();
 		}
 
@@ -264,7 +288,7 @@ namespace FAO_InFARM_Library
 				return string.Empty;
 
 			return string.Join(Constants.InFARM_Delimiter,
-				values.Select(v => 
+				values.Select(v =>
 				{
 					// Escape any quotes that are present in the real field value.
 					v = v.Replace(Constants.DoubleQuote, Constants.TwoDoubleQuotes);
@@ -282,8 +306,8 @@ namespace FAO_InFARM_Library
 		/// <param name="isolateRows"></param>
 		/// <param name="overwriteExistingInterpretations"></param>
 		/// <returns></returns>
-		private static Dictionary<string, string>? ConvertToInterpreterFormat(Dictionary<string, int> headerLookup, 
-			List<string[]> isolateRows, 
+		private static Dictionary<string, string>? ConvertToInterpreterFormat(Dictionary<string, int> headerLookup,
+			List<string[]> isolateRows,
 			bool overwriteExistingInterpretations)
 		{
 			if (isolateRows == null || isolateRows.Count == 0)
@@ -296,8 +320,9 @@ namespace FAO_InFARM_Library
 
 			// Convert the organism code to the WHONET version.
 			// This dictionary will contain only the relevant fields for interpretations.
-			Dictionary<string, string> output = new() { 
-				[DataFields.MICROORG.WHONET_Name] = OrganismLookup.InFARM_To_WHONET_Map[infarmOrganismCode] 
+			Dictionary<string, string> output = new()
+			{
+				[DataFields.MICROORG.WHONET_Name] = OrganismLookup.InFARM_To_WHONET_Map[infarmOrganismCode]
 			};
 
 			foreach (string[] row in isolateRows)
