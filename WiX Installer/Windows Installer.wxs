@@ -1,0 +1,178 @@
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+	 xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+	 xmlns:netfx="http://wixtoolset.org/schemas/v4/wxs/netfx">
+
+	<Package Name="!(loc.ApplicationTitle)" Language="!(loc.LCID)" Version="$(var.Version)"
+			 Manufacturer="!(loc.ManufacturerName)" UpgradeCode="9eb88bca-7b69-43f0-8220-beac57963de2" InstallerVersion="200">
+
+
+		<PropertyRef Id="WIX_IS_NETFRAMEWORK_48_OR_LATER_INSTALLED" />
+
+		<Launch
+		  Message="This application requires .NET Framework 4.8 or later."
+		  Condition="Installed OR WIX_IS_NETFRAMEWORK_48_OR_LATER_INSTALLED"
+		/>
+
+		<!-- Prevent downgrades. To downgrade, the software must be uninstalled through Add/Remove programs first. -->
+		<MajorUpgrade Schedule="afterInstallInitialize" DowngradeErrorMessage="!(loc.DowngradeError)" />
+
+		<!-- Embed all resources into the installer package. -->
+		<MediaTemplate EmbedCab="yes" />
+
+		<!-- Perform an upgrade for new releases. -->
+		<Upgrade Id="9eb88bca-7b69-43f0-8220-beac57963de2">
+			<UpgradeVersion Minimum="0.0.0" Property="PREVIOUSFOUND"
+							IncludeMinimum="yes" OnlyDetect="no" Maximum="$(var.Version)" IncludeMaximum="no" />
+		</Upgrade>
+
+		<!-- Custom dialog ordering. -->
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+		<ui:WixUI Id="WixUI_Mondo_Custom" />
+		<UIRef Id="WixUI_ErrorProgressText" />
+
+		<Icon Id="FarmIcon.ico" SourceFile="$(var.FAO_InFARM_Interpreter_Interface.TargetDir)FarmIcon.ico" />
+
+		<!-- Replaces the default EULA text and background images -->
+		<WixVariable Id="WixUILicenseRtf" Value="eula.rtf" />
+		<WixVariable Id="WixUIDialogBmp" Value="Dialog.bmp" />
+		<WixVariable Id="WixUIBannerBmp" Value="Banner.bmp" />
+
+		<?if $(var.Platform) = x64 ?>
+		<?define Win64 = "yes" ?>
+		<?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+		<?else?>
+		<?define Win64 = "no" ?>
+		<?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+		<?endif?>
+
+		<!-- Configure installation features. -->
+		<Feature Id="AMR_Engine" Title="!(loc.ApplicationTitle)" Level="1" Display="collapse" ConfigurableDirectory="INSTALLFOLDER"
+				 Description="!(loc.AMR_EngineFeatureDescription)" AllowAbsent="no">
+
+			<ComponentRef Id="ProgramMenuDir" />
+			<ComponentGroupRef Id="RootDirectoryComponents" />
+			<ComponentGroupRef Id="ResourceComponents" />
+		</Feature>
+	</Package>
+
+	<!-- Define AMR Engine components. -->
+	<Fragment>
+		<StandardDirectory Id="ProgramFilesFolder">
+			<Directory Id="INSTALLFOLDER" Name="$(var.Title)">
+				<!-- Language folders are disabled until we have support for them. -->
+				<!-- 
+					<Directory Id="ES_LANGUAGEFOLDER" Name="es" />
+					<Directory Id="FR_LANGUAGEFOLDER" Name="fr" />
+					<Directory Id="ZH_HANS_LANGUAGEFOLDER" Name="zh-Hans" />
+					-->
+
+				<Directory Id="INTERP_RESOURCESFOLDER" Name="Resources" />
+			</Directory>
+		</StandardDirectory>
+
+		<!-- Adds a program menu shortcut -->
+		<StandardDirectory Id="ProgramMenuFolder">
+			<Directory Id="ProgramMenuDir" Name="$(var.Title)">
+				<Component Id="ProgramMenuDir" Guid="01B2A9CA-0796-48DB-94A8-6CC33C24380B">
+					<RemoveFolder Id="ProgramMenuDir" On="uninstall" />
+					<RegistryValue Root="HKCU" Key="Software\$(var.Title)" Type="string" Value="" KeyPath="yes" />
+				</Component>
+			</Directory>
+		</StandardDirectory>
+
+		<StandardDirectory Id="DesktopFolder" />
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="RootDirectoryComponents" Directory="INSTALLFOLDER">
+
+			<!-- Main executable and libraries. -->
+			<Component Id="InterpretationInterface" Guid="B13FE1CA-9B8D-4797-8907-C31FC5FCDE58">
+				<File Id="FAO_InFARM_Interpreter_Interface.exe" Name="FAO InFARM Interpreter Interface.exe"
+					  Source="$(var.FAO_InFARM_Interpreter_Interface.TargetDir)FAO InFARM Interpreter Interface.exe" KeyPath="yes">
+
+					<Shortcut Id="StartMenuShortcut" Directory="ProgramMenuDir" Name="$(var.Title)" Icon="FarmIcon.ico" IconIndex="0" Advertise="yes" />
+					<Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="$(var.Title)" Icon="FarmIcon.ico" IconIndex="0" Advertise="yes" />
+				</File>
+			</Component>
+
+			<Component Id="InterpretationInterfaceLibrary" Guid="DABA008D-75DE-481F-B4A9-C017FD47A3C1">
+				<File Id="FAO_InFARM_Interpreter_Interface.dll" Name="FAO InFARM Interpreter Interface.dll"
+					  Source="$(var.FAO_InFARM_Interpreter_Interface.TargetDir)FAO InFARM Interpreter Interface.dll" KeyPath="yes" />
+			</Component>
+
+			<Component Id="FAO_InterpretationLibrary" Guid="79C3C5F7-E686-442B-908A-A375144BA5BA">
+				<File Id="FAO_InterpretationLibrary" Name="FAO InFARM Library.dll"
+					  Source="$(var.FAO_InFARM_Library.TargetDir)FAO InFARM Library.dll" KeyPath="yes" />
+			</Component>
+
+			<Component Id="InterpretationEngine" Guid="D5BA262C-04E1-4EAC-8E6D-94F469049632">
+				<File Id="InterpretationEngine.dll" Name="Interpretation Engine.dll"
+					  Source="$(var.FAO_InFARM_Interpreter_Interface.TargetDir)Interpretation Engine.dll" KeyPath="yes" />
+			</Component>
+
+			<Component Id="InterpretationInterfaceConfig" Guid="2521DAF6-CF7B-420C-8130-CA158E031DDE">
+				<File Id="FAO_InFARM_Interpreter_Interface.runtimeconfig.json" Name="FAO InFARM Interpreter Interface.runtimeconfig.json"
+					  Source="$(var.FAO_InFARM_Interpreter_Interface.TargetDir)FAO InFARM Interpreter Interface.runtimeconfig.json" KeyPath="yes" />
+			</Component>
+		</ComponentGroup>
+
+		<!-- Resource files. -->
+		<ComponentGroup Id="ResourceComponents" Directory="INTERP_RESOURCESFOLDER">
+			<Component Id="Antibiotics.txt" Guid="FEBF701F-04D0-4E39-895C-901A2AA37DFF">
+				<File Id="Antibiotics.txt" Name="Antibiotics.txt"
+					  Source="$(var.FAO_InFARM_Interpreter_Interface.TargetDir)Resources\Antibiotics.txt" KeyPath="yes" />
+			</Component>
+
+			<Component Id="Breakpoints.sql" Guid="929EE618-D9C5-4A46-8821-50A62A7F55F8">
+				<File Id="Breakpoints.sql" Name="Breakpoints.sql"
+					  Source="$(var.FAO_InFARM_Interpreter_Interface.TargetDir)Resources\Breakpoints.sql" KeyPath="yes" />
+			</Component>
+
+			<Component Id="Breakpoints.txt" Guid="B3B90C86-59D6-4216-AC8A-A6021AB78CA0">
+				<File Id="Breakpoints.txt" Name="Breakpoints.txt"
+					  Source="$(var.FAO_InFARM_Interpreter_Interface.TargetDir)Resources\Breakpoints.txt" KeyPath="yes" />
+			</Component>
+
+			<Component Id="ExpectedResistancePhenotypes.sql" Guid="A37A3247-1E7E-4E9E-A85D-88EE5F5E6094">
+				<File Id="ExpectedResistancePhenotypes.sql" Name="ExpectedResistancePhenotypes.sql"
+					  Source="$(var.FAO_InFARM_Interpreter_Interface.TargetDir)Resources\ExpectedResistancePhenotypes.sql" KeyPath="yes" />
+			</Component>
+
+			<Component Id="ExpectedResistancePhenotypes.txt" Guid="1AA41DAD-6CB8-48DF-B5F2-DE921B3B11CF">
+				<File Id="ExpectedResistancePhenotypes.txt" Name="ExpectedResistancePhenotypes.txt"
+					  Source="$(var.FAO_InFARM_Interpreter_Interface.TargetDir)Resources\ExpectedResistancePhenotypes.txt" KeyPath="yes" />
+			</Component>
+
+			<Component Id="ExpertInterpretationRules.txt" Guid="122AB041-3A0E-4104-8810-5F395431C451">
+				<File Id="ExpertInterpretationRules.txt" Name="ExpertInterpretationRules.txt"
+					  Source="$(var.FAO_InFARM_Interpreter_Interface.TargetDir)Resources\ExpertInterpretationRules.txt" KeyPath="yes" />
+			</Component>
+
+			<Component Id="Organisms.txt" Guid="0DE7A772-5223-40CD-9F7F-D471A236BB6F">
+				<File Id="Organisms.txt" Name="Organisms.txt"
+					  Source="$(var.FAO_InFARM_Interpreter_Interface.TargetDir)Resources\Organisms.txt" KeyPath="yes" />
+			</Component>
+
+			<Component Id="QC_Ranges.txt" Guid="94E01BEC-BAF6-4D24-820E-46C41C00DA18">
+				<File Id="QC_Ranges.txt" Name="QC_Ranges.txt"
+					  Source="$(var.FAO_InFARM_Interpreter_Interface.TargetDir)Resources\QC_Ranges.txt" KeyPath="yes" />
+			</Component>
+
+			<Component Id="SampleConfig.json" Guid="BEEAD39A-59DD-4759-AE7D-F6D5FA85AC90">
+				<File Id="SampleConfig.json" Name="SampleConfig.json"
+					  Source="$(var.FAO_InFARM_Interpreter_Interface.TargetDir)Resources\SampleConfig.json" KeyPath="yes" />
+			</Component>
+
+			<Component Id="SampleInputFile.txt" Guid="3EDB5E76-28F0-4F0B-ACFD-45264A57F610">
+				<File Id="SampleInputFile.txt" Name="SampleInputFile.txt"
+					  Source="$(var.FAO_InFARM_Interpreter_Interface.TargetDir)Resources\SampleInputFile.txt" KeyPath="yes" />
+			</Component>
+
+			<Component Id="SampleUserDefinedBreakpoints.txt" Guid="1DC2693C-B125-48BC-B918-5D4A9801623F">
+				<File Id="SampleUserDefinedBreakpoints.txt" Name="SampleUserDefinedBreakpoints.txt"
+					  Source="$(var.FAO_InFARM_Interpreter_Interface.TargetDir)Resources\SampleUserDefinedBreakpoints.txt" KeyPath="yes" />
+			</Component>
+		</ComponentGroup>
+	</Fragment>
+</Wix>

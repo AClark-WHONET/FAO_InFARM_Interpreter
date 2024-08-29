@@ -7,10 +7,25 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Version>$(VersionPrefix)24.8.29</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="FarmIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="FarmIcon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FAO InFARM Library\FAO InFARM Library.csproj" />
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if $(ConfigurationName) == Release (&#xD;&#xA;echo Attempting to sign binary...&#xD;&#xA;signtool.exe sign /tr http://timestamp.sectigo.com /td sha256 /fd sha256 /a &quot;$(TargetDir)$(TargetName).exe&quot;&#xD;&#xA;) else (&#xD;&#xA;echo Signing skipped because we are not in Release mode.&#xD;&#xA;)" />
+  </Target>
 
 </Project>

@@ -1,0 +1,48 @@
+<Project Sdk="WixToolset.Sdk/5.0.1">
+  <PropertyGroup>
+    <OutputName>FAO_InFARM_Interpreter</OutputName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DefineConstants>Debug</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <DefineConstants>Title=AMR Interpretation Engine;Version=24.8.29</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <DefineConstants>Title=FAO InFARM Interpreter;Version=24.8.29</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Util.wixext" Version="5.0.1" />
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.1" />
+    <PackageReference Include="WixToolset.NetFx.wixext" Version="5.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\AMR_InterpretationEngine\Interpretation Engine\Interpretation Engine.csproj">
+      <Name>Interpretation Engine</Name>
+      <Project>{4b232743-43a9-4182-8b5b-f1d3ea86787a}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\FAO InFARM Interpreter Interface\FAO InFARM Interpreter Interface.csproj">
+      <Name>FAO InFARM Interpreter Interface</Name>
+      <Project>{c9c28beb-8300-4a0b-9352-d59547120fa2}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\FAO InFARM Library\FAO InFARM Library.csproj">
+      <Name>FAO InFARM Library</Name>
+      <Project>{1826c47b-f943-4176-a08c-269cd3b97e19}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+  </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="echo Attempting to sign installation package...&#xA;signtool.exe sign /tr http://timestamp.sectigo.com /td sha256 /fd sha256 /d &quot;FAO InFARM Interpreter&quot; /a &quot;$(TargetDir)en-us\$(TargetName).msi&quot;" />
+  </Target>
+</Project>

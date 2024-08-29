@@ -11,3 +11,5 @@
 /FAO InFARM Library/obj
 /FAO InFARM Interpreter Interface/bin/Release/net8.0-windows
 /FAO InFARM Library/bin/Release/net8.0
+/WiX Installer/obj
+/WiX Installer/bin/x86/Release/en-us

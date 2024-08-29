@@ -58,7 +58,7 @@
 			Interp_ECOFFsRadioButton.Location = new Point(6, 47);
 			Interp_ECOFFsRadioButton.Name = "Interp_ECOFFsRadioButton";
 			Interp_ECOFFsRadioButton.Size = new Size(87, 19);
-			Interp_ECOFFsRadioButton.TabIndex = 7;
+			Interp_ECOFFsRadioButton.TabIndex = 1;
 			Interp_ECOFFsRadioButton.Text = "Use ECOFFs";
 			Interp_ECOFFsRadioButton.UseVisualStyleBackColor = true;
 			// 
@@ -69,7 +69,7 @@
 			Interp_ClinicalBreakpointsRadioButton.Location = new Point(6, 22);
 			Interp_ClinicalBreakpointsRadioButton.Name = "Interp_ClinicalBreakpointsRadioButton";
 			Interp_ClinicalBreakpointsRadioButton.Size = new Size(149, 19);
-			Interp_ClinicalBreakpointsRadioButton.TabIndex = 6;
+			Interp_ClinicalBreakpointsRadioButton.TabIndex = 0;
 			Interp_ClinicalBreakpointsRadioButton.TabStop = true;
 			Interp_ClinicalBreakpointsRadioButton.Text = "Use clinical breakpoints";
 			Interp_ClinicalBreakpointsRadioButton.UseVisualStyleBackColor = true;
@@ -110,7 +110,7 @@
 			Interp_OverwriteExistingInterpretationsCheckbox.Location = new Point(7, 47);
 			Interp_OverwriteExistingInterpretationsCheckbox.Name = "Interp_OverwriteExistingInterpretationsCheckbox";
 			Interp_OverwriteExistingInterpretationsCheckbox.Size = new Size(255, 19);
-			Interp_OverwriteExistingInterpretationsCheckbox.TabIndex = 8;
+			Interp_OverwriteExistingInterpretationsCheckbox.TabIndex = 2;
 			Interp_OverwriteExistingInterpretationsCheckbox.Text = "Overwrite existing test result interpretations";
 			Interp_OverwriteExistingInterpretationsCheckbox.UseVisualStyleBackColor = true;
 			// 
@@ -120,7 +120,7 @@
 			Interp_BrowseForInputFileButton.Location = new Point(640, 114);
 			Interp_BrowseForInputFileButton.Name = "Interp_BrowseForInputFileButton";
 			Interp_BrowseForInputFileButton.Size = new Size(131, 23);
-			Interp_BrowseForInputFileButton.TabIndex = 2;
+			Interp_BrowseForInputFileButton.TabIndex = 3;
 			Interp_BrowseForInputFileButton.Text = "Browse";
 			Interp_BrowseForInputFileButton.UseVisualStyleBackColor = true;
 			Interp_BrowseForInputFileButton.Click += Interp_BrowseForInputFileButton_Click;
@@ -131,7 +131,7 @@
 			Interp_InputFileTextBox.Location = new Point(3, 114);
 			Interp_InputFileTextBox.Name = "Interp_InputFileTextBox";
 			Interp_InputFileTextBox.Size = new Size(631, 23);
-			Interp_InputFileTextBox.TabIndex = 1;
+			Interp_InputFileTextBox.TabIndex = 2;
 			// 
 			// Interp_InputFileLabel
 			// 
@@ -190,7 +190,7 @@
 			BreakpointGroupBox.Location = new Point(498, 3);
 			BreakpointGroupBox.Name = "BreakpointGroupBox";
 			BreakpointGroupBox.Size = new Size(273, 78);
-			BreakpointGroupBox.TabIndex = 9;
+			BreakpointGroupBox.TabIndex = 1;
 			BreakpointGroupBox.TabStop = false;
 			BreakpointGroupBox.Text = "Breakpoints";
 			// 
@@ -202,7 +202,7 @@
 			UtilityModeGroupBox.Location = new Point(3, 3);
 			UtilityModeGroupBox.Name = "UtilityModeGroupBox";
 			UtilityModeGroupBox.Size = new Size(489, 78);
-			UtilityModeGroupBox.TabIndex = 10;
+			UtilityModeGroupBox.TabIndex = 0;
 			UtilityModeGroupBox.TabStop = false;
 			UtilityModeGroupBox.Text = "Mode";
 			// 
@@ -244,7 +244,7 @@
 			MainPanel.Location = new Point(12, 12);
 			MainPanel.Name = "MainPanel";
 			MainPanel.Size = new Size(780, 190);
-			MainPanel.TabIndex = 11;
+			MainPanel.TabIndex = 0;
 			// 
 			// MainInterfaceForm
 			// 
