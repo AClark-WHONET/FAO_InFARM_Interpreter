@@ -9,3 +9,5 @@
 /.vs/ProjectEvaluation
 /FAO InFARM Library/bin/Debug/net8.0
 /FAO InFARM Library/obj
+/FAO InFARM Interpreter Interface/bin/Release/net8.0-windows
+/FAO InFARM Library/bin/Release/net8.0
